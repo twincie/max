@@ -170,7 +170,6 @@ class Ui(QtWidgets.QMainWindow):
     def slider_moved_handler(self, value):
         self.mediaPlayer.setPosition((value / 100) * self.mediaPlayer.duration())
 
-
     def statusView(self, state):
         if self.mediaPlaer.state() == QtMultimedia.QMediaPlayer.PlayingState:
             self.playPauseButton.setText(str("Play"))
@@ -178,14 +177,6 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.playPauseButton.setText(str("Pause"))
             self.playingStatus.setText("Paused:")
-
-
-    # def current_playlist_position(self, item):
-    #     print ("current index song is on")
-    #     index = self.treeWidget.indexFromItem(item).row()
-    #     print (index)
-    #     print("current index : "+ index)
-        
         
         # self.playlist.indexFromItem(index)
         # if i > -1:
@@ -212,8 +203,6 @@ class Ui(QtWidgets.QMainWindow):
             "artist": audio.get("artist", ["<no data>"])[0],
             "duration": self.convert(int(audio.info.length))
         }
-
-    
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
