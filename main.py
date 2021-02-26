@@ -41,8 +41,7 @@ class Ui(QtWidgets.QMainWindow):
     def Open_File(self):
         print("open file")
         dialog = QtWidgets.QFileDialog()
-        # path, _ = dialog.getOpenFileName(self, "Open File", "", "sound Files (*.mp3 *.ogg *.wav*.m4a);All files (*,*)")
-        path, _ = dialog.getOpenFileName(self, 'Open File', os.getenv('MUSIC_PATH'), 'sound Files (*.mp3 *.ogg *.wav *.m4a *.aac);All files (*,*)')
+        path, _ = dialog.getOpenFileName(self, 'Open File', os.getenv('MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
         if path != '':
             print("File path: " + path)
             self.add_to_plalist(path)
