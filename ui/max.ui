@@ -103,31 +103,38 @@
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Status</string>
+        </property>
+       </widget>
+      </item>
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="playingStatus">
         <property name="text">
-         <string>Now Playing:</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="nameStatus">
         <property name="text">
-         <string>Therefore I Am</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="artistStatus">
         <property name="text">
-         <string>Billie Eilish</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="albumStatus">
         <property name="text">
-         <string>Therefore I Am</string>
+         <string/>
         </property>
        </widget>
       </item>
