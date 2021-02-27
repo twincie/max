@@ -13,6 +13,7 @@ class Ui(QtWidgets.QMainWindow):
         super(Ui, self).__init__()
 
         self.playlist = [] 
+        self.playlist_path = None
         self.current_index = -1
 
         uic.loadUi(path_dilation("ui/max.ui"), self)
@@ -54,7 +55,8 @@ class Ui(QtWidgets.QMainWindow):
             "album": metadata["album"],
             "artist": metadata["artist"],
             "media": content,
-            "duration": metadata["duration"]
+            "duration": metadata["duration"],
+            "path": path
         }
         # this inputs the required slots in place on the tree widget
         item = QtWidgets.QTreeWidgetItem(self.treeWidget)
@@ -70,13 +72,34 @@ class Ui(QtWidgets.QMainWindow):
         # Audio.pprint() gets all data from mutagen and prints on consol
         # print ("data of selected musuc")
             
+    def saveHandler(self, path):
+        if path != '':
+            file, ext = os.path.splitext(path)
+            path = file + (ext or ".m3u")
+            print("path : " + path)
+            with open(path,'w') as f:
+                for track in self.playlist:
+                    # f.write("# " + track["title"] + "\n")
+                    f.write(track["path"] + "\n")
+            self.playlist_path = path
+
+
 
     def Save(self):
         print("save")
+        # impliments save as and also saves the changes to the files
+        if self.playlist_path:
+            self.saveHandler(self.playlist_path)
+        else:
+            self.Save_As()
 
 
     def Save_As(self):
         print("save as")
+        # saves the files in list view so i can import list whenever i want
+        dialog = QtWidgets.QFileDialog()
+        path, _ = dialog.getSaveFileName(self, "Save file", "", "Playlist File(*.m3u)")
+        self.saveHandler(path)
     
     def Exit (self):
         print("Exit")
