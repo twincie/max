@@ -106,7 +106,7 @@ class Ui(QtWidgets.QMainWindow):
             self.next()
     
     def next(self):
-        self.current_index += 1
+        self.current_index = (self.current_index + 1) % len(self.playlist)
         track = self.playlist[self.current_index]
         content = track["media"]
         self.mediaPlayer.setMedia(content)
