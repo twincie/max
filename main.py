@@ -97,9 +97,6 @@ class Ui(QtWidgets.QMainWindow):
             # playPauseButton.setText("Play")
             print("play")
             
-        
-        
-    
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
             print("song has finished playing")
@@ -142,10 +139,6 @@ class Ui(QtWidgets.QMainWindow):
         self.albumStatus.setText(track["album"])
         self.artistStatus.setText(track["artist"])
 
-        # if self.mediaPlayer.isFinished():
-        #     print("song has finished playing")
-        # self.next()
-
     def humanify_seconds(self, seconds):
         parts = []
         for (index, part) in enumerate(reversed(self.convert(seconds))):
@@ -178,13 +171,6 @@ class Ui(QtWidgets.QMainWindow):
             self.playPauseButton.setText(str("Pause"))
             self.playingStatus.setText("Paused:")
         
-        # self.playlist.indexFromItem(index)
-        # if i > -1:
-        #     ix = index
-        #     self.playlist.setCurrentIndex(ix)
-        #     print("current index : " + ix)
-
-
     def convert(self, seconds):
         hours = seconds // 3600
         seconds %= 3600
