@@ -17,8 +17,14 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QTreeWidget" name="treeWidget">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
       <property name="rootIsDecorated">
        <bool>false</bool>
+      </property>
+      <property name="allColumnsShowFocus">
+       <bool>true</bool>
       </property>
       <property name="headerHidden">
        <bool>false</bool>

@@ -14,7 +14,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.playlist = [] 
         self.playlist_path = None
-        self.current_index = -1
+        self.current_index = None
 
         uic.loadUi(path_dilation("ui/max.ui"), self)
         
@@ -57,17 +57,18 @@ class Ui(QtWidgets.QMainWindow):
             "artist": metadata["artist"],
             "media": content,
             "duration": metadata["duration"],
-            "path": path
+            "path": path,
+            "item": QtWidgets.QTreeWidgetItem(self.treeWidget)
         }
-        # this inputs the required slots in place on the tree widget
-        item = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        item.setText(0, f"{len(self.playlist) + 1:02}")
-        item.setText(1, track["title"])
-        item.setText(2, track["album"])
-        item.setText(3, track["artist"])
 
-        self.playlist.append(track) # adds more tracks to the playlist
-            
+        # this inputs the required slots in place on the tree widget
+        track["item"].setText(0, f"{len(self.playlist) + 1:02}")
+        track["item"].setText(1, track["title"])
+        track["item"].setText(2, track["album"])
+        track["item"].setText(3, track["artist"])
+
+        self.playlist.append(track)  # adds more tracks to the playlist
+
         # gets data from mtigen and prints all on consol
         # Audio = mutagen.File(content)
         # Audio.pprint() gets all data from mutagen and prints on consol
@@ -108,51 +109,71 @@ class Ui(QtWidgets.QMainWindow):
 
     def playPauseHandler(self):
         # print("play/pause")
-        if self.mediaPlayer.state() == QtMultimedia.QMediaPlayer.PlayingState:
-            self.mediaPlayer.pause()
-            self.playPauseButton.setText("Play")
-            self.playingStatus.setText("Paused")
-            # playPauseButton.setText("Pause")
-            print("pause")
-        else:
-            self.mediaPlayer.play()
-            self.playPauseButton.setText("Pause")
-            self.playingStatus.setText("Now Playing")
-            # playPauseButton.setText("Play")
-            print("play")
-            
+        if self.current_index != None:
+            if self.mediaPlayer.state() == QtMultimedia.QMediaPlayer.PlayingState:
+                self.mediaPlayer.pause()
+                self.playPauseButton.setText("Play")
+                self.playingStatus.setText("Paused")
+                # playPauseButton.setText("Pause")
+                print("pause")
+            else:
+                self.mediaPlayer.play()
+                self.playPauseButton.setText("Pause")
+                self.playingStatus.setText("Now Playing")
+                # playPauseButton.setText("Play")
+                print("play")
+
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
             print("song has finished playing")
             self.next()
-    
-    def next(self):
-        self.current_index = (self.current_index + 1) % len(self.playlist)
-        track = self.playlist[self.current_index]
-        content = track["media"]
-        self.mediaPlayer.setMedia(content)
-        self.nameStatus.setText(track["title"])
-        self.albumStatus.setText(track["album"])
-        self.artistStatus.setText(track["artist"])
-        self.mediaPlayer.play()
 
+    def paint_tree_item(self, item, brush=None):
+        for index in range(4):
+            if not brush:
+                item.setData(index, QtCore.Qt.BackgroundRole, None)
+            else:
+                item.setBackground(index, brush)
+
+    def next(self):
+        if self.current_index != None and len(self.playlist) > 0:
+            self.paint_tree_item(self.playlist[self.current_index]["item"])
+            self.current_index = (self.current_index + 1) % len(self.playlist)
+            track = self.playlist[self.current_index]
+            self.paint_tree_item(track["item"],
+                                 QtGui.QBrush(QtGui.QColor("#168479")))
+            content = track["media"]
+            self.mediaPlayer.setMedia(content)
+            self.nameStatus.setText(track["title"])
+            self.albumStatus.setText(track["album"])
+            self.artistStatus.setText(track["artist"])
+            self.mediaPlayer.play()
 
     def previous(self):
-        self.current_index -= 1
-        track = self.playlist[self.current_index]
-        content = track["media"]
-        self.mediaPlayer.setMedia(content)
-        self.nameStatus.setText(track["title"])
-        self.albumStatus.setText(track["album"])
-        self.artistStatus.setText(track["artist"])
-        self.mediaPlayer.play()
+        if self.current_index != None and len(self.playlist) > 0:
+            self.paint_tree_item(self.playlist[self.current_index]["item"])
+            self.current_index = (self.current_index +
+                                  len(self.playlist) - 1) % len(self.playlist)
+            track = self.playlist[self.current_index]
+            self.paint_tree_item(track["item"],
+                                 QtGui.QBrush(QtGui.QColor("#168479")))
+            content = track["media"]
+            self.mediaPlayer.setMedia(content)
+            self.nameStatus.setText(track["title"])
+            self.albumStatus.setText(track["album"])
+            self.artistStatus.setText(track["artist"])
+            self.mediaPlayer.play()
 
     def tree_item_double_click(self, item):
         print("tree item clicked")
+        if self.current_index != None:
+            self.paint_tree_item(self.playlist[self.current_index]["item"])
         # gets current row in playlist
         self.current_index = self.treeWidget.indexFromItem(item).row()
         print(self.current_index) # prints current index
         track = self.playlist[self.current_index] #links current 
+        self.paint_tree_item(track["item"],
+                                 QtGui.QBrush(QtGui.QColor("#168479")))
         content = track["media"]
         self.mediaPlayer.setMedia(content)
 
