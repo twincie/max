@@ -49,6 +49,16 @@
         <string>Artist</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Length</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Year</string>
+       </property>
+      </column>
      </widget>
     </item>
     <item>

@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtMultimedia, QtCore
 # from PyQt5.QtWidgets import *
+import datetime
 import mutagen
 import os
 import sys 
@@ -52,20 +53,22 @@ class Ui(QtWidgets.QMainWindow):
         metadata = self.metadata(path) # gets song from path and gets metadata
         content = QtMultimedia.QMediaContent(QtCore.QUrl.fromLocalFile(path))
         track = {
-            "title": metadata["title"],
-            "album": metadata["album"],
-            "artist": metadata["artist"],
-            "media": content,
-            "duration": metadata["duration"],
+            **metadata,
             "path": path,
+            "media": content,
             "item": QtWidgets.QTreeWidgetItem(self.treeWidget)
         }
 
         # this inputs the required slots in place on the tree widget
-        track["item"].setText(0, f"{len(self.playlist) + 1:02}")
+        track["item"].setText(0, track["trackn"].split("/")[0])
         track["item"].setText(1, track["title"])
         track["item"].setText(2, track["album"])
         track["item"].setText(3, track["artist"])
+        track["item"].setText(4, self.humanify_seconds(track["duration"]))
+        try:
+            track["item"].setText(5, str(datetime.date.fromisoformat(track["date"]).year))
+        except:
+            pass
 
         self.playlist.append(track)  # adds more tracks to the playlist
 
@@ -129,7 +132,7 @@ class Ui(QtWidgets.QMainWindow):
             self.next()
 
     def paint_tree_item(self, item, brush=None):
-        for index in range(4):
+        for index in range(6):
             if not brush:
                 item.setData(index, QtCore.Qt.BackgroundRole, None)
             else:
@@ -229,10 +232,12 @@ class Ui(QtWidgets.QMainWindow):
 
         print(int(audio.info.length))
         return {
+            "trackn": audio.get("tracknumber", ["<no data>"])[0],
             "title": audio.get("title", ["<no data>"])[0],
             "album": audio.get("album", ["<no data>"])[0],
             "artist": audio.get("artist", ["<no data>"])[0],
-            "duration": self.convert(int(audio.info.length))
+            "date": audio.get("date", ["<no data>"])[0],
+            "duration": int(audio.info.length)
         }
 
 if __name__ == "__main__":
