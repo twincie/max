@@ -42,10 +42,11 @@ class Ui(QtWidgets.QMainWindow):
     def Open_File(self):
         print("open file")
         dialog = QtWidgets.QFileDialog()
-        path, _ = dialog.getOpenFileName(self, 'Open File', os.getenv('MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
-        if path != '':
-            print("File path: " + path)
-            self.add_to_plalist(path)
+        paths, _ = dialog.getOpenFileNames(self, 'Open File', os.getenv('MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
+        for path in paths:
+            if path != '':
+                print("File path: " + path)
+                self.add_to_plalist(path)
     
     def add_to_plalist(self, path):
         metadata = self.metadata(path) # gets song from path and gets metadata
