@@ -61,7 +61,7 @@ class Ui(QtWidgets.QMainWindow):
     
     def add_to_plalist(self, path):
         if os.path.isdir(path):
-            for file in os.listdir(path):
+            for file in sorted(os.listdir(path)):
                 self.add_to_plalist(os.path.join(path, file))
             return
 
