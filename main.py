@@ -36,7 +36,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionSave_As.triggered.connect(self.Save_As)
         self.actionExit.triggered.connect(self.Exit)
 
-        self.treeWidget.itemClicked['QTreeWidgetItem*','int'].connect(self.tree_item_click)
+        self.treeWidget.itemDoubleClicked['QTreeWidgetItem*','int'].connect(self.tree_item_double_click)
         #Where tree item click is a self defined slot function
 
     def Open_File(self):
@@ -147,7 +147,7 @@ class Ui(QtWidgets.QMainWindow):
         self.artistStatus.setText(track["artist"])
         self.mediaPlayer.play()
 
-    def tree_item_click(self, item):
+    def tree_item_double_click(self, item):
         print("tree item clicked")
         # gets current row in playlist
         self.current_index = self.treeWidget.indexFromItem(item).row()
