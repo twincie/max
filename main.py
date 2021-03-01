@@ -86,7 +86,7 @@ class Ui(QtWidgets.QMainWindow):
         track["statuslabel"].setAlignment(QtCore.Qt.AlignCenter)
         self.treeWidget.setItemWidget(track["item"], 0, track["statuslabel"])
 
-        track["item"].setText(1, track["trackn"].split("/")[0])
+        track["item"].setText(1, f'{(track["trackn"].split("/")[0]):0>2}')
         track["item"].setText(2, track["title"])
         track["item"].setText(3, track["album"])
         track["item"].setText(4, track["artist"])
