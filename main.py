@@ -3,17 +3,18 @@ from PyQt5 import QtWidgets, uic, QtGui, QtMultimedia, QtCore
 import datetime
 import mutagen
 import os
-import sys 
+import sys
 
 
 def path_dilation(path):
     return os.path.join(os.path.dirname(__file__), path)
 
+
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
 
-        self.playlist = [] 
+        self.playlist = []
         self.playlist_path = None
         self.current_index = None
 
@@ -33,20 +34,22 @@ class Ui(QtWidgets.QMainWindow):
         self.previousButton.clicked.connect(self.previous)
 
         # self.progessBar.timeout.connect()
-        
+
         self.actionOpen_File.triggered.connect(self.Open_File)
         self.actionOpen_Folder.triggered.connect(self.Open_Folder)
         self.actionSave.triggered.connect(self.Save)
         self.actionSave_As.triggered.connect(self.Save_As)
         self.actionExit.triggered.connect(self.Exit)
 
-        self.treeWidget.itemDoubleClicked['QTreeWidgetItem*','int'].connect(self.tree_item_double_click)
-        #Where tree item click is a self defined slot function
+        self.treeWidget.itemDoubleClicked['QTreeWidgetItem*',
+                                          'int'].connect(self.tree_item_double_click)
+        # Where tree item click is a self defined slot function
 
     def Open_File(self):
         print("open file")
         dialog = QtWidgets.QFileDialog()
-        paths, _ = dialog.getOpenFileNames(self, 'Open File', os.getenv('MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
+        paths, _ = dialog.getOpenFileNames(self, 'Open File', os.getenv(
+            'MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
         for path in paths:
             if path != '':
                 self.add_to_plalist(path)
@@ -54,11 +57,12 @@ class Ui(QtWidgets.QMainWindow):
     def Open_Folder(self):
         print("open folder")
         dialog = QtWidgets.QFileDialog()
-        path = dialog.getExistingDirectory(self, 'Open Directory', os.getenv('MUSIC_PATH'))
+        path = dialog.getExistingDirectory(
+            self, 'Open Directory', os.getenv('MUSIC_PATH'))
         if path != '':
             print("Folder path: " + path)
             self.add_to_plalist(path)
-    
+
     def add_to_plalist(self, path):
         if os.path.isdir(path):
             for file in sorted(os.listdir(path)):
@@ -70,7 +74,8 @@ class Ui(QtWidgets.QMainWindow):
 
         print("File path: " + path)
         try:
-            metadata = self.metadata(path) # gets song from path and gets metadata
+            # gets song from path and gets metadata
+            metadata = self.metadata(path)
         except:
             return
         content = QtMultimedia.QMediaContent(QtCore.QUrl.fromLocalFile(path))
@@ -92,7 +97,8 @@ class Ui(QtWidgets.QMainWindow):
         track["item"].setText(4, track["artist"])
         track["item"].setText(5, self.humanify_seconds(track["duration"]))
         try:
-            track["item"].setText(6, str(datetime.date.fromisoformat(track["date"]).year))
+            track["item"].setText(
+                6, str(datetime.date.fromisoformat(track["date"]).year))
         except:
             pass
 
@@ -102,19 +108,17 @@ class Ui(QtWidgets.QMainWindow):
         # Audio = mutagen.File(content)
         # Audio.pprint() gets all data from mutagen and prints on consol
         # print ("data of selected musuc")
-            
+
     def saveHandler(self, path):
         if path != '':
             file, ext = os.path.splitext(path)
             path = file + (ext or ".m3u")
             print("path : " + path)
-            with open(path,'w') as f:
+            with open(path, 'w') as f:
                 for track in self.playlist:
                     # f.write("# " + track["title"] + "\n")
                     f.write(track["path"] + "\n")
             self.playlist_path = path
-
-
 
     def Save(self):
         print("save")
@@ -124,15 +128,15 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.Save_As()
 
-
     def Save_As(self):
         print("save as")
         # saves the files in list view so i can import list whenever i want
         dialog = QtWidgets.QFileDialog()
-        path, _ = dialog.getSaveFileName(self, "Save file", "", "Playlist File(*.m3u)")
+        path, _ = dialog.getSaveFileName(
+            self, "Save file", "", "Playlist File(*.m3u)")
         self.saveHandler(path)
-    
-    def Exit (self):
+
+    def Exit(self):
         print("Exit")
         self.close()
 
@@ -166,7 +170,8 @@ class Ui(QtWidgets.QMainWindow):
     def indicate_now_playing(self, track, brush=None):
         if brush:
             icon = QtGui.QIcon.fromTheme("media-playback-start")
-            track["statuslabel"].setPixmap(icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
+            track["statuslabel"].setPixmap(icon.pixmap(
+                icon.actualSize(QtCore.QSize(16, 16))))
         else:
             track["statuslabel"].clear()
         for index in range(7):
@@ -180,7 +185,8 @@ class Ui(QtWidgets.QMainWindow):
             self.indicate_now_playing(self.playlist[self.current_index])
             self.current_index = (self.current_index + 1) % len(self.playlist)
             track = self.playlist[self.current_index]
-            self.indicate_now_playing(track, QtGui.QBrush(QtGui.QColor("#168479")))
+            self.indicate_now_playing(
+                track, QtGui.QBrush(QtGui.QColor("#168479")))
             content = track["media"]
             self.mediaPlayer.setMedia(content)
             self.nameStatus.setText(track["title"])
@@ -194,7 +200,8 @@ class Ui(QtWidgets.QMainWindow):
             self.current_index = (self.current_index +
                                   len(self.playlist) - 1) % len(self.playlist)
             track = self.playlist[self.current_index]
-            self.indicate_now_playing(track, QtGui.QBrush(QtGui.QColor("#168479")))
+            self.indicate_now_playing(
+                track, QtGui.QBrush(QtGui.QColor("#168479")))
             content = track["media"]
             self.mediaPlayer.setMedia(content)
             self.nameStatus.setText(track["title"])
@@ -208,8 +215,8 @@ class Ui(QtWidgets.QMainWindow):
             self.indicate_now_playing(self.playlist[self.current_index])
         # gets current row in playlist
         self.current_index = self.treeWidget.indexFromItem(item).row()
-        print(self.current_index) # prints current index
-        track = self.playlist[self.current_index] #links current 
+        print(self.current_index)  # prints current index
+        track = self.playlist[self.current_index]  # links current
         self.indicate_now_playing(track, QtGui.QBrush(QtGui.QColor("#168479")))
         content = track["media"]
         self.mediaPlayer.setMedia(content)
@@ -229,21 +236,24 @@ class Ui(QtWidgets.QMainWindow):
                 parts.append(f"{part:02}")
 
         return ":".join(reversed(parts))
-    
+
     def position_changed_handler(self, position):
         print("position_changed_handler:", position)
         seconds = position / 1000
         self.positionTimer.setText(self.humanify_seconds(seconds))
         try:
-            self.positionSlider.setValue(int(position / self.mediaPlayer.duration() * 100))
+            self.positionSlider.setValue(
+                int(position / self.mediaPlayer.duration() * 100))
         except:
             pass
 
     def duration_changed_handler(self, duration):
-        self.fixedTimer.setText(self.humanify_seconds(self.mediaPlayer.duration() / 1000))
+        self.fixedTimer.setText(self.humanify_seconds(
+            self.mediaPlayer.duration() / 1000))
 
     def slider_moved_handler(self, value):
-        self.mediaPlayer.setPosition((value / 100) * self.mediaPlayer.duration())
+        self.mediaPlayer.setPosition(
+            (value / 100) * self.mediaPlayer.duration())
 
     def statusView(self, state):
         if self.mediaPlaer.state() == QtMultimedia.QMediaPlayer.PlayingState:
@@ -252,14 +262,14 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.playPauseButton.setText(str("Pause"))
             self.playingStatus.setText("Paused:")
-        
+
     def convert(self, seconds):
         hours = seconds // 3600
         seconds %= 3600
         mins = seconds // 60
         seconds %= 60
         return hours, mins, seconds
-    
+
     def metadata(self, path):
         audio = mutagen.File(path, easy=True)
         audio.get('duration')
@@ -273,6 +283,7 @@ class Ui(QtWidgets.QMainWindow):
             "date": audio.get("date", ["<no data>"])[0],
             "duration": int(audio.info.length)
         }
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
