@@ -177,6 +177,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_File"/>
+    <addaction name="actionOpen_Folder"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="actionExit"/>
@@ -196,12 +197,17 @@
   </action>
   <action name="actionOpen_File">
    <property name="text">
-    <string>Open File</string>
+    <string>Open File...</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionOpen_Folder">
+   <property name="text">
+    <string>Open Folder...</string>
    </property>
   </action>
  </widget>

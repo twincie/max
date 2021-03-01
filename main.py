@@ -35,6 +35,7 @@ class Ui(QtWidgets.QMainWindow):
         # self.progessBar.timeout.connect()
         
         self.actionOpen_File.triggered.connect(self.Open_File)
+        self.actionOpen_Folder.triggered.connect(self.Open_Folder)
         self.actionSave.triggered.connect(self.Save)
         self.actionSave_As.triggered.connect(self.Save_As)
         self.actionExit.triggered.connect(self.Exit)
@@ -48,11 +49,30 @@ class Ui(QtWidgets.QMainWindow):
         paths, _ = dialog.getOpenFileNames(self, 'Open File', os.getenv('MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
         for path in paths:
             if path != '':
-                print("File path: " + path)
                 self.add_to_plalist(path)
+
+    def Open_Folder(self):
+        print("open folder")
+        dialog = QtWidgets.QFileDialog()
+        path = dialog.getExistingDirectory(self, 'Open Directory', os.getenv('MUSIC_PATH'))
+        if path != '':
+            print("Folder path: " + path)
+            self.add_to_plalist(path)
     
     def add_to_plalist(self, path):
-        metadata = self.metadata(path) # gets song from path and gets metadata
+        if os.path.isdir(path):
+            for file in os.listdir(path):
+                self.add_to_plalist(os.path.join(path, file))
+            return
+
+        if os.path.splitext(path)[1] not in [".mp3", ".ogg", ".wav", ".m4a", ".aac"]:
+            return
+
+        print("File path: " + path)
+        try:
+            metadata = self.metadata(path) # gets song from path and gets metadata
+        except:
+            return
         content = QtMultimedia.QMediaContent(QtCore.QUrl.fromLocalFile(path))
         track = {
             **metadata,
