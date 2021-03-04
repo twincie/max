@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, uic, QtGui, QtMultimedia, QtCore
 # from PyQt5.QtWidgets import *
 import datetime
 import mutagen
+from mutagen.mp4 import MP4
 import os
 import sys
 
@@ -192,6 +193,11 @@ class Ui(QtWidgets.QMainWindow):
             self.nameStatus.setText(track["title"])
             self.albumStatus.setText(track["album"])
             self.artistStatus.setText(track["artist"])
+            if track["album_art"]:
+                px = QtGui.QPixmap()
+                px.loadFromData(track["album_art"])
+                self.artlabel.setPixmap(px.scaled(self.artlabel.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+
             self.mediaPlayer.play()
 
     def previous(self):
@@ -207,6 +213,10 @@ class Ui(QtWidgets.QMainWindow):
             self.nameStatus.setText(track["title"])
             self.albumStatus.setText(track["album"])
             self.artistStatus.setText(track["artist"])
+            if track["album_art"]:
+                px = QtGui.QPixmap()
+                px.loadFromData(track["album_art"])
+                self.artlabel.setPixmap(px.scaled(self.artlabel.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
             self.mediaPlayer.play()
 
     def tree_item_double_click(self, item):
@@ -227,6 +237,10 @@ class Ui(QtWidgets.QMainWindow):
         self.nameStatus.setText(track["title"])
         self.albumStatus.setText(track["album"])
         self.artistStatus.setText(track["artist"])
+        if track["album_art"]:
+            px = QtGui.QPixmap()
+            px.loadFromData(track["album_art"])
+            self.artlabel.setPixmap(px.scaled(self.artlabel.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
     def humanify_seconds(self, seconds):
         parts = []
@@ -272,15 +286,14 @@ class Ui(QtWidgets.QMainWindow):
 
     def metadata(self, path):
         audio = mutagen.File(path, easy=True)
-        audio.get('duration')
 
-        print(int(audio.info.length))
         return {
             "trackn": audio.get("tracknumber", ["<no data>"])[0],
             "title": audio.get("title", ["<no data>"])[0],
             "album": audio.get("album", ["<no data>"])[0],
             "artist": audio.get("artist", ["<no data>"])[0],
             "date": audio.get("date", ["<no data>"])[0],
+            "album_art": MP4(path).get("covr", [None])[0],
             "duration": int(audio.info.length)
         }
 
