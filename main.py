@@ -22,6 +22,7 @@ class Ui(QtWidgets.QMainWindow):
         uic.loadUi(path_dilation("ui/max.ui"), self)
 
         self.treeWidget.setColumnWidth(0, 43)
+        self.treeWidget.setSortingEnabled(True)
 
         self.mediaPlayer = QtMultimedia.QMediaPlayer(None)
         self.mediaPlayer.mediaStatusChanged.connect(self.media_status_handler)
@@ -45,6 +46,7 @@ class Ui(QtWidgets.QMainWindow):
         self.treeWidget.itemDoubleClicked['QTreeWidgetItem*',
                                           'int'].connect(self.tree_item_double_click)
         # Where tree item click is a self defined slot function
+        self.searchbar.textChanged.connect(self.search)
 
     def Open_File(self):
         print("open file")
@@ -296,6 +298,23 @@ class Ui(QtWidgets.QMainWindow):
             "album_art": MP4(path).get("covr", [None])[0],
             "duration": int(audio.info.length)
         }
+
+    def search(self, query):
+        print("search", query)
+
+        query = query.lower().split(" ")
+        query = [*filter(bool, query)]
+        for track in self.playlist:
+            base = [track["title"], track["album"],
+                    track["artist"], track["date"]]
+            base = " ".join(base).lower()
+            base = base.split(" ")
+            base = [*filter(bool, base)]
+            print(query, base, all(word in base for word in query))
+            if all(any(word in entry for entry in base) for word in query):
+                track["item"].setHidden(False)
+            else:
+                track["item"].setHidden(True)
 
 
 if __name__ == "__main__":
