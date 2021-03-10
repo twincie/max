@@ -186,7 +186,8 @@ class Ui(QtWidgets.QMainWindow):
     def next(self):
         if self.current_index != None and len(self.playlist) > 0:
             self.indicate_now_playing(self.playlist[self.current_index])
-            self.current_index = (self.current_index + 1) % len(self.playlist)
+            self.current_index = (
+                self.current_index + (self.repeatButton.isChecked() == False)) % len(self.playlist)
             track = self.playlist[self.current_index]
             self.indicate_now_playing(
                 track, QtGui.QBrush(QtGui.QColor("#168479")))
