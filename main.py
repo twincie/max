@@ -188,19 +188,8 @@ class Ui(QtWidgets.QMainWindow):
             self.indicate_now_playing(self.playlist[self.current_index])
             self.current_index = (
                 self.current_index + (self.repeatButton.isChecked() == False)) % len(self.playlist)
-            track = self.playlist[self.current_index]
-            self.indicate_now_playing(
-                track, QtGui.QBrush(QtGui.QColor("#168479")))
-            content = track["media"]
-            self.mediaPlayer.setMedia(content)
-            self.nameStatus.setText(track["title"])
-            self.albumStatus.setText(track["album"])
-            self.artistStatus.setText(track["artist"])
-            if track["album_art"]:
-                px = QtGui.QPixmap()
-                px.loadFromData(track["album_art"])
-                self.artlabel.setPixmap(px.scaled(self.artlabel.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
-
+            self.album_content_handler()
+            self.album_art_handler()
             self.mediaPlayer.play()
 
     def previous(self):
@@ -208,42 +197,37 @@ class Ui(QtWidgets.QMainWindow):
             self.indicate_now_playing(self.playlist[self.current_index])
             self.current_index = (self.current_index +
                                   len(self.playlist) - 1) % len(self.playlist)
-            track = self.playlist[self.current_index]
-            self.indicate_now_playing(
-                track, QtGui.QBrush(QtGui.QColor("#168479")))
-            content = track["media"]
-            self.mediaPlayer.setMedia(content)
-            self.nameStatus.setText(track["title"])
-            self.albumStatus.setText(track["album"])
-            self.artistStatus.setText(track["artist"])
-            if track["album_art"]:
-                px = QtGui.QPixmap()
-                px.loadFromData(track["album_art"])
-                self.artlabel.setPixmap(px.scaled(self.artlabel.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+            s.setText(track["title"])
+            self.album_content_handler()
+            self.album_art_handler()
             self.mediaPlayer.play()
 
     def tree_item_double_click(self, item):
         print("tree item clicked")
         if self.current_index != None:
             self.indicate_now_playing(self.playlist[self.current_index])
-        # gets current row in playlist
         self.current_index = self.treeWidget.indexFromItem(item).row()
-        print(self.current_index)  # prints current index
+        print(self.current_index)
+        self.album_content_handler()
+        self.playPauseButton.click()
+        self.album_art_handler()
+
+    def album_art_handler(self):
+        track = self.playlist[self.current_index]  # links current
+        if track["album_art"]:
+            px = QtGui.QPixmap()
+            px.loadFromData(track["album_art"])
+            self.artlabel.setPixmap(px.scaled(self.artlabel.size(
+            ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+
+    def album_content_handler(self):
         track = self.playlist[self.current_index]  # links current
         self.indicate_now_playing(track, QtGui.QBrush(QtGui.QColor("#168479")))
         content = track["media"]
         self.mediaPlayer.setMedia(content)
-
-        self.playPauseButton.click()
-
-        # self.mediaPlayer.play()
         self.nameStatus.setText(track["title"])
         self.albumStatus.setText(track["album"])
         self.artistStatus.setText(track["artist"])
-        if track["album_art"]:
-            px = QtGui.QPixmap()
-            px.loadFromData(track["album_art"])
-            self.artlabel.setPixmap(px.scaled(self.artlabel.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
     def humanify_seconds(self, seconds):
         parts = []
