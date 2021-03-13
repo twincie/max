@@ -170,7 +170,7 @@ class Ui(QtWidgets.QMainWindow):
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
             print("song has finished playing")
-            self.next()
+            self.next(self.repeatButton.isChecked())
 
     def indicate_now_playing(self, track, brush=None):
         if brush:
@@ -185,11 +185,11 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 track["item"].setBackground(index, brush)
 
-    def next(self):
+    def next(self, repeat=False):
         if self.current_index != None and len(self.playlist) > 0:
             self.indicate_now_playing(self.playlist[self.current_index])
-            self.current_index = (
-                self.current_index + (self.repeatButton.isChecked() == False)) % len(self.playlist)
+            self.current_index = (self.current_index +
+                                  (not repeat)) % len(self.playlist)
             self.album_content_handler()
             self.album_art_handler()
             self.mediaPlayer.play()
@@ -199,7 +199,6 @@ class Ui(QtWidgets.QMainWindow):
             self.indicate_now_playing(self.playlist[self.current_index])
             self.current_index = (self.current_index +
                                   len(self.playlist) - 1) % len(self.playlist)
-            s.setText(track["title"])
             self.album_content_handler()
             self.album_art_handler()
             self.mediaPlayer.play()
@@ -267,7 +266,7 @@ class Ui(QtWidgets.QMainWindow):
         return ":".join(reversed(parts))
 
     def position_changed_handler(self, position):
-        print("position_changed_handler:", position)
+        # print("position_changed_handler:", position)
         seconds = position / 1000
         self.positionTimer.setText(self.humanify_seconds(seconds))
         try:
