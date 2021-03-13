@@ -281,7 +281,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def slider_moved_handler(self, value):
         self.mediaPlayer.setPosition(
-            (value / 100) * self.mediaPlayer.duration())
+            int((value / 100) * float(self.mediaPlayer.duration())))
 
     def statusView(self, state):
         if self.mediaPlaer.state() == QtMultimedia.QMediaPlayer.PlayingState:
