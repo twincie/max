@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtMultimedia, QtCore
-# from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import *
 import datetime
 import mutagen
 from mutagen.mp4 import MP4
@@ -23,6 +23,10 @@ class Ui(QtWidgets.QMainWindow):
 
         self.treeWidget.setColumnWidth(0, 43)
         self.treeWidget.setSortingEnabled(True)
+        self.treeWidget.itemDoubleClicked['QTreeWidgetItem*',
+                                          'int'].connect(self.tree_item_double_click)
+        self.treeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.treeWidget.customContextMenuRequested.connect(self.generateMenu)
 
         self.mediaPlayer = QtMultimedia.QMediaPlayer(None)
         self.mediaPlayer.mediaStatusChanged.connect(self.media_status_handler)
@@ -43,8 +47,6 @@ class Ui(QtWidgets.QMainWindow):
         self.actionSave_As.triggered.connect(self.Save_As)
         self.actionExit.triggered.connect(self.Exit)
 
-        self.treeWidget.itemDoubleClicked['QTreeWidgetItem*',
-                                          'int'].connect(self.tree_item_double_click)
         # Where tree item click is a self defined slot function
         self.searchbar.textChanged.connect(self.search)
 
@@ -211,6 +213,32 @@ class Ui(QtWidgets.QMainWindow):
         self.album_content_handler()
         self.playPauseButton.click()
         self.album_art_handler()
+
+    def generateMenu(self, pos):
+        print(pos)
+        # Get index
+        for i in self.treeWidget.selectionModel().selection().indexes():
+            # If the selected row index is less than 1, the context menu will pop up
+            rownum = i.row()
+        if rownum >= 0:
+            menu = QMenu()
+            item1 = menu.addAction("delete")
+        # Make the menu display in the normal position
+        screenPos = self.treeWidget.mapToGlobal(pos)
+        # Click on a menu item to return, making it blocked
+        action = menu.exec(screenPos)
+        if action == item1:
+            print('Deleted')
+            self.del_item()
+        else:
+            return
+
+    def del_item(self):
+        root = self.treeWidget.invisibleRootItem()
+        for item in self.treeWidget.selectedItems():
+            index = self.treeWidget.indexFromItem(item).row()
+            (item.parent() or root).removeChild(item)
+            del self.playlist[index]
 
     def album_art_handler(self):
         track = self.playlist[self.current_index]  # links current
