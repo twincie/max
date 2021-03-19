@@ -265,6 +265,8 @@ class Ui(QtWidgets.QMainWindow):
     def del_item(self):
         root = self.treeWidget.invisibleRootItem()
         for item in self.treeWidget.selectedItems():
+            if item.uniq_id == self.current_uniq_id:
+                self.next()
             (item.parent() or root).removeChild(item)
             del self.playlist[item.uniq_id]
 
