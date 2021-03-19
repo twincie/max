@@ -335,6 +335,7 @@
     </property>
     <addaction name="actionOpen_File"/>
     <addaction name="actionOpen_Folder"/>
+    <addaction name="actionOpen_Playlist"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="actionExit"/>
@@ -365,6 +366,11 @@
   <action name="actionOpen_Folder">
    <property name="text">
     <string>Open Folder...</string>
+   </property>
+  </action>
+  <action name="actionOpen_Playlist">
+   <property name="text">
+    <string>Open Playlist</string>
    </property>
   </action>
  </widget>

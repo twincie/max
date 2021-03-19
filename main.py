@@ -47,6 +47,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionSave.triggered.connect(self.Save)
         self.actionSave_As.triggered.connect(self.Save_As)
         self.actionExit.triggered.connect(self.Exit)
+        self.actionOpen_Playlist.triggered.connect(self.Open_playlist)
 
         # Where tree item click is a self defined slot function
         self.searchbar.textChanged.connect(self.search)
@@ -68,6 +69,19 @@ class Ui(QtWidgets.QMainWindow):
         if path != '':
             print("Folder path: " + path)
             self.add_to_plalist(path)
+
+    def Open_playlist(self):
+        print("Open playlist")
+        dialog = QtWidgets.QFileDialog()
+        path, _ = dialog.getOpenFileName(
+            self, 'Open Playlist', '', 'PLAYLIST Files (*.m3u *.m3u8)')
+
+        for l in open(path).readlines():
+            l = l.strip()
+            if l and not l.startswith("#"):
+                if not os.path.isabs(l):
+                    l = os.path.join(os.path.dirname(path), l)
+                self.add_to_plalist(l)
 
     def reserve_uniq_slot(self):
         available = None
