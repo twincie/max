@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, uic, QtGui, QtMultimedia, QtCore
 from PyQt5.QtWidgets import *
 import datetime
 import mutagen
+import random
 from mutagen.mp4 import MP4
 import os
 import sys
@@ -15,9 +16,9 @@ class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
 
-        self.playlist = []
+        self.playlist = {}
         self.playlist_path = None
-        self.current_index = None
+        self.current_uniq_id = None
 
         uic.loadUi(path_dilation("ui/max.ui"), self)
 
@@ -68,6 +69,31 @@ class Ui(QtWidgets.QMainWindow):
             print("Folder path: " + path)
             self.add_to_plalist(path)
 
+    def reserve_uniq_slot(self):
+        available = None
+        while not available or available in self.playlist:
+            available = ''.join(random.choice('0123456789abcdef')
+                                for i in range(64))
+        self.playlist[available] = {}
+        return (available, self.playlist[available])
+
+    def get_uniq_index(self, uniq_id=None):
+        uniq_id = uniq_id or self.current_uniq_id
+        index = -1
+        if uniq_id:
+            index = self.treeWidget.indexFromItem(
+                self.playlist[uniq_id]["item"]).row()
+        return index
+
+    def uniq_from_index(self, index):
+        return self.treeWidget.topLevelItem(index).uniq_id
+
+    def getAllTrackItems(self):
+        return [
+            self.treeWidget.topLevelItem(index)
+            for index in range(0, self.treeWidget.topLevelItemCount())
+        ]
+
     def add_to_plalist(self, path):
         if os.path.isdir(path):
             for file in sorted(os.listdir(path)):
@@ -84,13 +110,17 @@ class Ui(QtWidgets.QMainWindow):
         except:
             return
         content = QtMultimedia.QMediaContent(QtCore.QUrl.fromLocalFile(path))
-        track = {
+
+        (uniq_id, track) = self.reserve_uniq_slot()
+
+        track.update({
             **metadata,
             "path": path,
             "media": content,
             "item": QtWidgets.QTreeWidgetItem(self.treeWidget),
             "statuslabel": QtWidgets.QLabel()
-        }
+        })
+        track["item"].uniq_id = uniq_id
 
         # this inputs the required slots in place on the tree widget
         track["statuslabel"].setAlignment(QtCore.Qt.AlignCenter)
@@ -107,8 +137,6 @@ class Ui(QtWidgets.QMainWindow):
         except:
             pass
 
-        self.playlist.append(track)  # adds more tracks to the playlist
-
         # gets data from mtigen and prints all on consol
         # Audio = mutagen.File(content)
         # Audio.pprint() gets all data from mutagen and prints on consol
@@ -120,7 +148,8 @@ class Ui(QtWidgets.QMainWindow):
             path = file + (ext or ".m3u")
             print("path : " + path)
             with open(path, 'w') as f:
-                for track in self.playlist:
+                for trackItem in self.getAllTrackItems():
+                    track = self.playlist[trackItem.uniq_id]
                     # f.write("# " + track["title"] + "\n")
                     f.write(track["path"] + "\n")
             self.playlist_path = path
@@ -147,14 +176,14 @@ class Ui(QtWidgets.QMainWindow):
 
     def playPauseHandler(self):
         # print("play/pause")
-        if self.current_index != None:
+        if self.current_uniq_id != None:
             if self.mediaPlayer.state() == QtMultimedia.QMediaPlayer.PlayingState:
                 self.mediaPlayer.pause()
                 self.playPauseButton.setText("Play")
                 self.playingStatus.setText("Paused")
                 # playPauseButton.setText("Pause")
                 icon = QtGui.QIcon.fromTheme("media-playback-pause")
-                self.playlist[self.current_index]["statuslabel"].setPixmap(
+                self.playlist[self.current_uniq_id]["statuslabel"].setPixmap(
                     icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
                 print("pause")
             else:
@@ -163,7 +192,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.playingStatus.setText("Now Playing")
                 # playPauseButton.setText("Play")
                 icon = QtGui.QIcon.fromTheme("media-playback-start")
-                self.playlist[self.current_index]["statuslabel"].setPixmap(
+                self.playlist[self.current_uniq_id]["statuslabel"].setPixmap(
                     icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
                 print("play")
 
@@ -186,29 +215,30 @@ class Ui(QtWidgets.QMainWindow):
                 track["item"].setBackground(index, brush)
 
     def next(self, repeat=False):
-        if self.current_index != None and len(self.playlist) > 0:
-            self.indicate_now_playing(self.playlist[self.current_index])
-            self.current_index = (self.current_index +
-                                  (not repeat)) % len(self.playlist)
+        if self.current_uniq_id != None and len(self.playlist) > 0:
+            self.indicate_now_playing(self.playlist[self.current_uniq_id])
+            current_index = self.get_uniq_index(self.current_uniq_id)
+            self.current_uniq_id = self.uniq_from_index((current_index +
+                                                         (not repeat)) % len(self.playlist))
             self.album_content_handler()
             self.album_art_handler()
             self.mediaPlayer.play()
 
     def previous(self):
-        if self.current_index != None and len(self.playlist) > 0:
-            self.indicate_now_playing(self.playlist[self.current_index])
-            self.current_index = (self.current_index +
-                                  len(self.playlist) - 1) % len(self.playlist)
+        if self.current_uniq_id != None and len(self.playlist) > 0:
+            self.indicate_now_playing(self.playlist[self.current_uniq_id])
+            current_index = self.get_uniq_index(self.current_uniq_id)
+            self.current_uniq_id = self.uniq_from_index((current_index +
+                                                         len(self.playlist) - 1) % len(self.playlist))
             self.album_content_handler()
             self.album_art_handler()
             self.mediaPlayer.play()
 
     def tree_item_double_click(self, item):
         print("tree item clicked")
-        if self.current_index != None:
-            self.indicate_now_playing(self.playlist[self.current_index])
-        self.current_index = self.treeWidget.indexFromItem(item).row()
-        print(self.current_index)
+        if self.current_uniq_id != None:
+            self.indicate_now_playing(self.playlist[self.current_uniq_id])
+        self.current_uniq_id = item.uniq_id
         self.album_content_handler()
         self.playPauseButton.click()
         self.album_art_handler()
@@ -235,12 +265,11 @@ class Ui(QtWidgets.QMainWindow):
     def del_item(self):
         root = self.treeWidget.invisibleRootItem()
         for item in self.treeWidget.selectedItems():
-            index = self.treeWidget.indexFromItem(item).row()
             (item.parent() or root).removeChild(item)
-            del self.playlist[index]
+            del self.playlist[item.uniq_id]
 
     def album_art_handler(self):
-        track = self.playlist[self.current_index]  # links current
+        track = self.playlist[self.current_uniq_id]  # links current
         if track["album_art"]:
             px = QtGui.QPixmap()
             px.loadFromData(track["album_art"])
@@ -248,7 +277,7 @@ class Ui(QtWidgets.QMainWindow):
             ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
     def album_content_handler(self):
-        track = self.playlist[self.current_index]  # links current
+        track = self.playlist[self.current_uniq_id]  # links current
         self.indicate_now_playing(track, QtGui.QBrush(QtGui.QColor("#168479")))
         content = track["media"]
         self.mediaPlayer.setMedia(content)
@@ -316,7 +345,8 @@ class Ui(QtWidgets.QMainWindow):
 
         query = query.lower().split(" ")
         query = [*filter(bool, query)]
-        for track in self.playlist:
+        for trackItem in self.getAllTrackItems():
+            track = self.playlist[trackItem.uniq_id]
             base = [track["title"], track["album"],
                     track["artist"], track["date"]]
             base = " ".join(base).lower()
