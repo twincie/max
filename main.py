@@ -52,6 +52,27 @@ class Ui(QtWidgets.QMainWindow):
         # Where tree item click is a self defined slot function
         self.searchbar.textChanged.connect(self.search)
 
+        self.artlabel.mouseDoubleClickEvent = self.launch_pop
+
+    def launch_pop(self, event):
+        print("pic")
+        dlg = QDialog(self)
+        track = self.playlist[self.current_uniq_id]
+        dlg.label = QLabel("Label", dlg)
+        dlg.setWindowTitle(dlg.label.setText(track["title"]))
+        dlg.setGeometry(0, 0, 600, 600)
+        dlg.label.resize(600, 600)
+        px = QtGui.QPixmap()
+        px.loadFromData(track["album_art"])
+        dlg.label.setPixmap(px.scaled(dlg.label.size(
+        ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        window = dlg.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        window.moveCenter(centerPoint)
+        dlg.move(window.topLeft())
+        dlg.show()
+        dlg.exec_()
+
     def Open_File(self):
         print("open file")
         dialog = QtWidgets.QFileDialog()
@@ -181,7 +202,7 @@ class Ui(QtWidgets.QMainWindow):
         # saves the files in list view so i can import list whenever i want
         dialog = QtWidgets.QFileDialog()
         path, _ = dialog.getSaveFileName(
-            self, "Save file", "", "Playlist File(*.m3u)")
+            self, "Save file", "", "Playlist File(*.m3u *.m3u8)")
         self.saveHandler(path)
 
     def Exit(self):
