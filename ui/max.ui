@@ -144,6 +144,15 @@
         </property>
        </widget>
       </item>
+
+      <item>
+       <widget class="QCheckBox" name="ShuffleButton">
+        <property name="text">
+         <string>Shuffle</string>
+        </property>
+       </widget>
+      </item>
+
      </layout>
     </item>
     <item>

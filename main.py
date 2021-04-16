@@ -54,6 +54,9 @@ class Ui(QtWidgets.QMainWindow):
 
         self.artlabel.mouseDoubleClickEvent = self.launch_pop
 
+        self.ShuffleButton.toggled.connect(self.shuffle_handler)
+        self.shuffle_tracks = []
+        
     def launch_pop(self, event):
         print("pic")
         dlg = QDialog(self)
@@ -74,10 +77,12 @@ class Ui(QtWidgets.QMainWindow):
         dlg.exec_()
 
     def Open_File(self):
+        # opens a file and adds the path to the playlist
         print("open file")
         dialog = QtWidgets.QFileDialog()
         paths, _ = dialog.getOpenFileNames(self, 'Open File', os.getenv(
             'MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
+
         for path in paths:
             if path != '':
                 self.add_to_plalist(path)
@@ -136,6 +141,7 @@ class Ui(QtWidgets.QMainWindow):
             return
 
         if os.path.splitext(path)[1] not in [".mp3", ".ogg", ".wav", ".m4a", ".aac"]:
+            print('Not supported file format')
             return
 
         print("File path: " + path)
@@ -156,7 +162,7 @@ class Ui(QtWidgets.QMainWindow):
             "statuslabel": QtWidgets.QLabel()
         })
         track["item"].uniq_id = uniq_id
-
+        
         # this inputs the required slots in place on the tree widget
         track["statuslabel"].setAlignment(QtCore.Qt.AlignCenter)
         self.treeWidget.setItemWidget(track["item"], 0, track["statuslabel"])
@@ -176,7 +182,7 @@ class Ui(QtWidgets.QMainWindow):
         # Audio = mutagen.File(content)
         # Audio.pprint() gets all data from mutagen and prints on consol
         # print ("data of selected musuc")
-
+    
     def saveHandler(self, path):
         if path != '':
             file, ext = os.path.splitext(path)
@@ -231,6 +237,15 @@ class Ui(QtWidgets.QMainWindow):
                     icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
                 print("play")
 
+    def shuffle_handler(self):
+        if self.ShuffleButton.isChecked() == True:
+            print('Shuffle ON')
+            self.shuffle_tracks = list(self.playlist.keys())
+        else:
+            # remove all items from shuffle_tracks
+            print('Shuffle OFF')
+            self.shuffle_tracks.clear()
+
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
             print("song has finished playing")
@@ -248,16 +263,28 @@ class Ui(QtWidgets.QMainWindow):
                 track["item"].setData(index, QtCore.Qt.BackgroundRole, None)
             else:
                 track["item"].setBackground(index, brush)
-
+    
     def next(self, repeat=False):
         if self.current_uniq_id != None and len(self.playlist) > 0:
-            self.indicate_now_playing(self.playlist[self.current_uniq_id])
-            current_index = self.get_uniq_index(self.current_uniq_id)
-            self.current_uniq_id = self.uniq_from_index((current_index +
-                                                         (not repeat)) % len(self.playlist))
-            self.album_content_handler()
-            self.album_art_handler()
-            self.mediaPlayer.play()
+            if self.ShuffleButton.isChecked() == False:
+                self.indicate_now_playing(self.playlist[self.current_uniq_id])
+                current_index = self.get_uniq_index(self.current_uniq_id)
+                self.current_uniq_id = self.uniq_from_index((current_index +
+                                                            (not repeat)) % len(self.playlist))
+
+                self.album_content_handler()
+                self.album_art_handler()
+                self.mediaPlayer.play()
+            else:
+                rndm_choice = random.choice(self.shuffle_tracks)
+                self.indicate_now_playing(self.playlist[rndm_choice])
+                self.current_uniq_id = rndm_choice
+                
+                self.album_content_handler()
+                self.album_art_handler()
+                self.mediaPlayer.play()
+
+                self.shuffle_tracks.remove(rndm_choice)
 
     def previous(self):
         if self.current_uniq_id != None and len(self.playlist) > 0:
@@ -273,6 +300,10 @@ class Ui(QtWidgets.QMainWindow):
         print("tree item clicked")
         if self.current_uniq_id != None:
             self.indicate_now_playing(self.playlist[self.current_uniq_id])
+
+        if self.current_uniq_id != None and ShuffleButton.isChecked() == True:
+            self.shuffle_tracks = list(self.playlist.keys())
+        
         self.current_uniq_id = item.uniq_id
         self.album_content_handler()
         self.playPauseButton.click()
@@ -374,6 +405,7 @@ class Ui(QtWidgets.QMainWindow):
             "artist": audio.get("artist", ["<no data>"])[0],
             "date": audio.get("date", ["<no data>"])[0],
             "album_art": MP4(path).get("covr", [None])[0],
+            "album_art": None,
             "duration": int(audio.info.length)
         }
 
