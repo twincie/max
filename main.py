@@ -56,7 +56,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.ShuffleButton.toggled.connect(self.shuffle_handler)
         self.shuffle_tracks = []
-        self.history
+        self.history = []
         
     def launch_pop(self, event):
         print("pic")
