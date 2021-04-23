@@ -54,6 +54,10 @@ class Ui(QtWidgets.QMainWindow):
 
         self.artlabel.mouseDoubleClickEvent = self.launch_pop
 
+        self.ShuffleButton.toggled.connect(self.shuffle_handler)
+        self.shuffle_tracks = []
+        self.history = []
+
     def launch_pop(self, event):
         print("pic")
         dlg = QDialog(self)
@@ -177,6 +181,15 @@ class Ui(QtWidgets.QMainWindow):
         # Audio.pprint() gets all data from mutagen and prints on consol
         # print ("data of selected musuc")
 
+    def shuffle_handler(self):
+        if self.ShuffleButton.isChecked() == True:
+            print('Shuffle ON')
+            self.shuffle_tracks = list(self.playlist.keys())
+        else:
+            # remove all items from shuffle_tracks
+            print('Shuffle OFF')
+            self.shuffle_tracks.clear()
+
     def saveHandler(self, path):
         if path != '':
             file, ext = os.path.splitext(path)
@@ -231,6 +244,19 @@ class Ui(QtWidgets.QMainWindow):
                     icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
                 print("play")
 
+    def history_handler(self, track_id):
+        history_length = len(self.history)
+        if history_length == 0:
+            self.history.append(track_id)
+            print(' ')
+            print(f"{self.playlist[track_id]['title']} has been addded to history")
+            print(' ')
+        if track_id != self.history[history_length-1]:
+            self.history.append(track_id)
+            print(' ')
+            print(f"{self.playlist[track_id]['title']} has been addded to history")
+            print(' ')
+        
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
             print("song has finished playing")
@@ -251,32 +277,71 @@ class Ui(QtWidgets.QMainWindow):
 
     def next(self, repeat=False):
         if self.current_uniq_id != None and len(self.playlist) > 0:
-            self.indicate_now_playing(self.playlist[self.current_uniq_id])
-            current_index = self.get_uniq_index(self.current_uniq_id)
-            self.current_uniq_id = self.uniq_from_index((current_index +
-                                                         (not repeat)) % len(self.playlist))
-            self.album_content_handler()
-            self.album_art_handler()
-            self.mediaPlayer.play()
+            if self.ShuffleButton.isChecked() == False:
+                self.indicate_now_playing(self.playlist[self.current_uniq_id])
+                current_index = self.get_uniq_index(self.current_uniq_id)
+                self.current_uniq_id = self.uniq_from_index((current_index +
+                                                            (not repeat)) % len(self.playlist))
+                self.history_handler(self.current_uniq_id)
+
+                self.album_content_handler()
+                self.album_art_handler()
+                self.mediaPlayer.play()
+            else:
+                try:
+                    rndm_choice = random.choice(self.shuffle_tracks)
+                    self.indicate_now_playing(self.playlist[rndm_choice])
+                    self.current_uniq_id = rndm_choice
+
+                    self.album_content_handler()
+                    self.album_art_handler()
+                    self.mediaPlayer.play()
+
+                    self.history_handler(rndm_choice)
+                    self.shuffle_tracks.remove(rndm_choice)
+                except:
+                    print('END OF TRACKS')
+                    # self.shuffle_tracks = list(self.playlist.keys())
+                
 
     def previous(self):
         if self.current_uniq_id != None and len(self.playlist) > 0:
-            self.indicate_now_playing(self.playlist[self.current_uniq_id])
-            current_index = self.get_uniq_index(self.current_uniq_id)
-            self.current_uniq_id = self.uniq_from_index((current_index +
+            if self.ShuffleButton.isChecked() == False:
+                self.indicate_now_playing(self.playlist[self.current_uniq_id])
+                current_index = self.get_uniq_index(self.current_uniq_id)
+                self.current_uniq_id = self.uniq_from_index((current_index +
                                                          len(self.playlist) - 1) % len(self.playlist))
-            self.album_content_handler()
-            self.album_art_handler()
-            self.mediaPlayer.play()
+                self.album_content_handler()
+                self.album_art_handler()
+                self.mediaPlayer.play()
+
+            if self.ShuffleButton.isChecked() == True:
+                current_track_index = self.history.index(self.current_uniq_id)
+                previous_track_index = current_track_index - 1
+
+                self.indicate_now_playing(self.playlist[self.history[previous_track_index]])
+
+                self.current_uniq_id = self.history[previous_track_index]
+
+                self.album_content_handler()
+                self.album_art_handler()
+                self.mediaPlayer.play()
 
     def tree_item_double_click(self, item):
         print("tree item clicked")
         if self.current_uniq_id != None:
             self.indicate_now_playing(self.playlist[self.current_uniq_id])
+        
+        # set shuffle_tracks to playlist
+        if self.current_uniq_id != None and self.ShuffleButton.isChecked() == True:
+            self.shuffle_tracks = list(self.playlist.keys())
+
         self.current_uniq_id = item.uniq_id
         self.album_content_handler()
         self.playPauseButton.click()
         self.album_art_handler()
+
+        self.history_handler(self.current_uniq_id)
 
     def generateMenu(self, pos):
         print(pos)
@@ -307,11 +372,11 @@ class Ui(QtWidgets.QMainWindow):
 
     def album_art_handler(self):
         track = self.playlist[self.current_uniq_id]  # links current
-        if track["album_art"]:
-            px = QtGui.QPixmap()
-            px.loadFromData(track["album_art"])
-            self.artlabel.setPixmap(px.scaled(self.artlabel.size(
-            ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        # if track["album_art"]:
+        #     px = QtGui.QPixmap()
+        #     px.loadFromData(track["album_art"])
+        #     self.artlabel.setPixmap(px.scaled(self.artlabel.size(
+        #     ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
     def album_content_handler(self):
         track = self.playlist[self.current_uniq_id]  # links current
@@ -373,7 +438,7 @@ class Ui(QtWidgets.QMainWindow):
             "album": audio.get("album", ["<no data>"])[0],
             "artist": audio.get("artist", ["<no data>"])[0],
             "date": audio.get("date", ["<no data>"])[0],
-            "album_art": MP4(path).get("covr", [None])[0],
+            # "album_art": MP4(path).get("covr", [None])[0],
             "duration": int(audio.info.length)
         }
 
