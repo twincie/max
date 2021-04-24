@@ -148,6 +148,7 @@ class Ui(QtWidgets.QMainWindow):
             metadata = self.metadata(path)
         except:
             return
+
         content = QtMultimedia.QMediaContent(QtCore.QUrl.fromLocalFile(path))
 
         (uniq_id, track) = self.reserve_uniq_slot()
@@ -248,14 +249,8 @@ class Ui(QtWidgets.QMainWindow):
         history_length = len(self.history)
         if history_length == 0:
             self.history.append(track_id)
-            print(' ')
-            print(f"{self.playlist[track_id]['title']} has been addded to history")
-            print(' ')
         if track_id != self.history[history_length-1]:
             self.history.append(track_id)
-            print(' ')
-            print(f"{self.playlist[track_id]['title']} has been addded to history")
-            print(' ')
         
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
@@ -300,8 +295,8 @@ class Ui(QtWidgets.QMainWindow):
                     self.history_handler(rndm_choice)
                     self.shuffle_tracks.remove(rndm_choice)
                 except:
-                    print('END OF TRACKS')
-                    # self.shuffle_tracks = list(self.playlist.keys())
+                    self.shuffle_tracks = list(self.playlist.keys())
+                    self.next()
                 
 
     def previous(self):
@@ -372,11 +367,11 @@ class Ui(QtWidgets.QMainWindow):
 
     def album_art_handler(self):
         track = self.playlist[self.current_uniq_id]  # links current
-        # if track["album_art"]:
-        #     px = QtGui.QPixmap()
-        #     px.loadFromData(track["album_art"])
-        #     self.artlabel.setPixmap(px.scaled(self.artlabel.size(
-        #     ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        if track["album_art"]:
+            px = QtGui.QPixmap()
+            px.loadFromData(track["album_art"])
+            self.artlabel.setPixmap(px.scaled(self.artlabel.size(
+            ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
     def album_content_handler(self):
         track = self.playlist[self.current_uniq_id]  # links current
@@ -438,7 +433,7 @@ class Ui(QtWidgets.QMainWindow):
             "album": audio.get("album", ["<no data>"])[0],
             "artist": audio.get("artist", ["<no data>"])[0],
             "date": audio.get("date", ["<no data>"])[0],
-            # "album_art": MP4(path).get("covr", [None])[0],
+            "album_art": MP4(path).get("covr", [None])[0],
             "duration": int(audio.info.length)
         }
 
