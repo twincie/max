@@ -4,6 +4,7 @@ import datetime
 import mutagen
 import random
 from mutagen.mp4 import MP4
+from mutagen.oggvorbis import OggVorbis
 import os
 import sys
 
@@ -100,13 +101,13 @@ class Ui(QtWidgets.QMainWindow):
         dialog = QtWidgets.QFileDialog()
         path, _ = dialog.getOpenFileName(
             self, 'Open Playlist', '', 'PLAYLIST Files (*.m3u *.m3u8)')
-
-        for l in open(path).readlines():
-            l = l.strip()
-            if l and not l.startswith("#"):
-                if not os.path.isabs(l):
-                    l = os.path.join(os.path.dirname(path), l)
-                self.add_to_plalist(l)
+        if path != '':
+            for l in open(path).readlines():
+                l = l.strip()
+                if l and not l.startswith("#"):
+                    if not os.path.isabs(l):
+                        l = os.path.join(os.path.dirname(path), l)
+                    self.add_to_plalist(l)
 
     def reserve_uniq_slot(self):
         available = None
@@ -425,17 +426,32 @@ class Ui(QtWidgets.QMainWindow):
         return hours, mins, seconds
 
     def metadata(self, path):
+        metadata = {}
         audio = mutagen.File(path, easy=True)
-
-        return {
-            "trackn": audio.get("tracknumber", ["<no data>"])[0],
-            "title": audio.get("title", ["<no data>"])[0],
-            "album": audio.get("album", ["<no data>"])[0],
-            "artist": audio.get("artist", ["<no data>"])[0],
-            "date": audio.get("date", ["<no data>"])[0],
-            "album_art": MP4(path).get("covr", [None])[0],
-            "duration": int(audio.info.length)
-        }
+        # No metadata extraction for unsupported file formats
+        metadata['trackn'] = audio.get('tracknumber', [''])[0]
+        metadata['title'] = audio.get('title', ['-'])[0]
+        metadata['album'] = audio.get('album', ['-'])[0]
+        metadata['artist'] = audio.get('artist', ['-'])[0]
+        metadata['date'] = audio.get('date', ['-'])[0]
+        
+        if path.endswith('.mp3'):
+            audio1 = mutagen.File(path)
+            for key in  audio1.keys():
+                if 'APIC:' in key:
+                    cover_data = audio1[key].data
+                    metadata['album_art'] = cover_data
+                    break
+                else:
+                    metadata['album_art'] = None
+        elif path.endswith('.m4a'):
+            audio1 = MP4(path)
+            metadata['album_art'] = audio1.get('covr', [None])[0]
+        elif path.endswith('.ogg'):
+            audio1 = OggVorbis(path)
+            metadata['album_art'] = audio1.get('metadata_block_picture', [None])[0]
+        metadata['duration'] = int(audio.info.length)
+        return metadata
 
     def search(self, query):
         print("search", query)
