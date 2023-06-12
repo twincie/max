@@ -180,7 +180,7 @@
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="4" column="1">
-         <widget class="QLabel" name="albumStatus">
+         <widget class="QLabel" name="artistStatus">
           <property name="text">
            <string/>
           </property>
@@ -236,7 +236,7 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLabel" name="artistStatus">
+         <widget class="QLabel" name="albumStatus">
           <property name="text">
            <string/>
           </property>
@@ -333,7 +333,7 @@
      <x>0</x>
      <y>0</y>
      <width>675</width>
-     <height>30</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
