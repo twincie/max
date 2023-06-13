@@ -367,12 +367,18 @@ class Ui(QtWidgets.QMainWindow):
             del self.playlist[item.uniq_id]
 
     def album_art_handler(self):
-        track = self.playlist[self.current_uniq_id]  # links current
-        if track["album_art"]:
-            px = QtGui.QPixmap()
-            px.loadFromData(track["album_art"])
-            self.artlabel.setPixmap(px.scaled(self.artlabel.size(
-            ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        try:
+            track = self.playlist[self.current_uniq_id]  # links current
+            if track["album_art"]:
+                px = QtGui.QPixmap()
+                px.loadFromData(track["album_art"])
+                self.artlabel.setPixmap(px.scaled(self.artlabel.size(
+                ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+            else:
+                self.artlabel.clear()
+        except:
+            print("Error handling album art")
+            self.artlabel.clear()
 
     def album_content_handler(self):
         track = self.playlist[self.current_uniq_id]  # links current
