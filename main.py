@@ -35,7 +35,7 @@ class Ui(QtWidgets.QMainWindow):
         self.mediaPlayer.positionChanged.connect(self.position_changed_handler)
         self.mediaPlayer.durationChanged.connect(self.duration_changed_handler)
         self.positionSlider.sliderMoved.connect(self.slider_moved_handler)
-        # self.mediaPlayer.positionChanged.
+        self.positionSlider.mousePressEvent = self.slider_mousePressEvent
 
         self.playPauseButton.clicked.connect(self.playPauseHandler)
         self.nextButton.clicked.connect(self.next)
@@ -405,10 +405,18 @@ class Ui(QtWidgets.QMainWindow):
         seconds = position / 1000
         self.positionTimer.setText(self.humanify_seconds(seconds))
         try:
-            self.positionSlider.setValue(
-                int(position / self.mediaPlayer.duration() * 100))
+            slider_value = int(position / self.mediaPlayer.duration() * 100)
+            self.positionSlider.setValue(slider_value)
         except:
             pass
+
+    def slider_mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            click_position = event.pos().x()
+            slider_width = self.positionSlider.width()
+            value = click_position / slider_width * self.positionSlider.maximum()
+            self.positionSlider.setValue(value)
+            self.slider_moved_handler(value)
 
     def duration_changed_handler(self, duration):
         self.fixedTimer.setText(self.humanify_seconds(
