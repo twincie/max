@@ -282,19 +282,19 @@ class Ui(QtWidgets.QMainWindow):
 
                 self.album_content_handler()
                 self.album_art_handler()
-                self.mediaPlayer.play()
+                self.playPauseButton.click()
             else:
                 try:
+                    self.indicate_now_playing(self.playlist[self.current_uniq_id])
                     rndm_choice = random.choice(self.shuffle_tracks)
-                    self.indicate_now_playing(self.playlist[rndm_choice])
                     self.current_uniq_id = rndm_choice
+                    self.history_handler(self.current_uniq_id)
+                    self.shuffle_tracks.remove(self.current_uniq_id)
 
                     self.album_content_handler()
                     self.album_art_handler()
-                    self.mediaPlayer.play()
+                    self.playPauseButton.click()
 
-                    self.history_handler(rndm_choice)
-                    self.shuffle_tracks.remove(rndm_choice)
                 except:
                     self.shuffle_tracks = list(self.playlist.keys())
                     self.next()
@@ -309,7 +309,7 @@ class Ui(QtWidgets.QMainWindow):
                                                          len(self.playlist) - 1) % len(self.playlist))
                 self.album_content_handler()
                 self.album_art_handler()
-                self.mediaPlayer.play()
+                self.playPauseButton.click()
 
             if self.ShuffleButton.isChecked() == True:
                 current_track_index = self.history.index(self.current_uniq_id)
@@ -321,16 +321,18 @@ class Ui(QtWidgets.QMainWindow):
 
                 self.album_content_handler()
                 self.album_art_handler()
-                self.mediaPlayer.play()
+                self.playPauseButton.click()
 
     def tree_item_double_click(self, item):
         print("tree item clicked")
         if self.current_uniq_id != None:
             self.indicate_now_playing(self.playlist[self.current_uniq_id])
         
-        # set shuffle_tracks to playlist
-        if self.current_uniq_id != None and self.ShuffleButton.isChecked() == True:
-            self.shuffle_tracks = list(self.playlist.keys())
+            # set shuffle_tracks to playlist
+            if self.ShuffleButton.isChecked() == True:
+                self.shuffle_tracks = list(self.playlist.keys())
+            else:
+                pass
 
         self.current_uniq_id = item.uniq_id
         self.album_content_handler()
