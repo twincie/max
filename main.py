@@ -59,24 +59,19 @@ class Ui(QtWidgets.QMainWindow):
         self.shuffle_tracks = []
         self.history = []
 
-    def launch_pop(self, event):
+    def launch_pop(self, dialog):
         print("pic")
-        dlg = QDialog(self)
+        dialog = QDialog(self)
         track = self.playlist[self.current_uniq_id]
-        dlg.label = QLabel("Label", dlg)
-        dlg.setWindowTitle(dlg.label.setText(track["title"]))
-        dlg.setGeometry(0, 0, 600, 600)
-        dlg.label.resize(600, 600)
-        px = QtGui.QPixmap()
-        px.loadFromData(track["album_art"])
-        dlg.label.setPixmap(px.scaled(dlg.label.size(
-        ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
-        window = dlg.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
-        window.moveCenter(centerPoint)
-        dlg.move(window.topLeft())
-        dlg.show()
-        dlg.exec_()
+        dialog.setWindowTitle(track["title"])
+        dialog.setGeometry(0, 0, 600, 600)
+        label = QLabel(dialog)
+        label.setGeometry(0, 0, 600, 600)
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(track["album_art"])
+        label.setPixmap(pixmap.scaled(label.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        dialog.move(QApplication.desktop().screen().rect().center() - dialog.rect().center())
+        dialog.exec_()
 
     def Open_File(self):
         print("open file")
