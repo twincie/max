@@ -23,6 +23,9 @@ class Ui(QtWidgets.QMainWindow):
 
         uic.loadUi(path_dilation("ui/max.ui"), self)
 
+        self.setWindowIcon(QtGui.QIcon("icon/logo.png"))
+        self.setWindowTitle("MAX")
+
         self.treeWidget.setColumnWidth(0, 43)
         self.treeWidget.setSortingEnabled(True)
         self.treeWidget.itemDoubleClicked['QTreeWidgetItem*',
@@ -369,10 +372,13 @@ class Ui(QtWidgets.QMainWindow):
             if track["album_art"]:
                 px = QtGui.QPixmap()
                 px.loadFromData(track["album_art"])
-                self.artlabel.setPixmap(px.scaled(self.artlabel.size(
-                ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                
             else:
+                px = QtGui.QPixmap("icon/logo.png")
                 self.artlabel.clear()
+
+            self.artlabel.setPixmap(px.scaled(self.artlabel.size(
+                ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
         except:
             print("Error handling album art")
             self.artlabel.clear()
