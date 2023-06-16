@@ -444,10 +444,11 @@ class Ui(QtWidgets.QMainWindow):
 
     def metadata(self, path):
         metadata = {}
+        filename = os.path.basename(path)
         audio = mutagen.File(path, easy=True)
         # No metadata extraction for unsupported file formats
         metadata['trackn'] = audio.get('tracknumber', [''])[0]
-        metadata['title'] = audio.get('title', ['-'])[0]
+        metadata['title'] = audio.get('title', [filename])[0]
         metadata['album'] = audio.get('album', ['-'])[0]
         metadata['artist'] = audio.get('artist', ['-'])[0]
         metadata['date'] = audio.get('date', ['-'])[0]
