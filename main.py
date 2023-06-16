@@ -160,7 +160,6 @@ class Ui(QtWidgets.QMainWindow):
             "statuslabel": QtWidgets.QLabel()
         })
         track["item"].uniq_id = uniq_id
-
         # this inputs the required slots in place on the tree widget
         track["statuslabel"].setAlignment(QtCore.Qt.AlignCenter)
         self.treeWidget.setItemWidget(track["item"], 0, track["statuslabel"])
@@ -170,11 +169,12 @@ class Ui(QtWidgets.QMainWindow):
         track["item"].setText(3, track["album"])
         track["item"].setText(4, track["artist"])
         track["item"].setText(5, self.humanify_seconds(track["duration"]))
-        try:
-            track["item"].setText(
-                6, str(datetime.date.fromisoformat(track["date"]).year))
-        except:
-            pass
+        track["item"].setText(6, track["date"])
+        # try:
+        #     track["item"].setText(
+        #         6, str(datetime.date.fromisoformat(track["date"]).year))
+        # except:
+        #     pass
 
         # gets data from mtigen and prints all on consol
         # Audio = mutagen.File(content)
@@ -451,8 +451,9 @@ class Ui(QtWidgets.QMainWindow):
         metadata['title'] = audio.get('title', [filename])[0]
         metadata['album'] = audio.get('album', ['-'])[0]
         metadata['artist'] = audio.get('artist', ['-'])[0]
+        # metadata['date'] = audio.get('date', [None])[0] or audio.get('year', [None])[0] or audio.get('originaldate', ['-'])[0]
         metadata['date'] = audio.get('date', ['-'])[0]
-        
+       
         if path.endswith('.mp3'):
             audio1 = mutagen.File(path)
             for key in  audio1.keys():
