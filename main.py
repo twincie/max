@@ -63,7 +63,7 @@ class Ui(QtWidgets.QMainWindow):
         self.history = []
 
     def launch_pop(self, dialog):
-        print("pic")
+        # print("pic")
         dialog = QDialog(self)
         track = self.playlist[self.current_uniq_id]
         dialog.setWindowTitle(track["title"])
@@ -77,7 +77,7 @@ class Ui(QtWidgets.QMainWindow):
         dialog.exec_()
 
     def Open_File(self):
-        print("open file")
+        # print("open file")
         dialog = QtWidgets.QFileDialog()
         paths, _ = dialog.getOpenFileNames(self, 'Open File', os.getenv(
             'MUSIC_PATH'), 'Sound Files (*.mp3 *.ogg *.wav *.m4a *.aac)')
@@ -86,16 +86,16 @@ class Ui(QtWidgets.QMainWindow):
                 self.add_to_plalist(path)
 
     def Open_Folder(self):
-        print("open folder")
+        # print("open folder")
         dialog = QtWidgets.QFileDialog()
         path = dialog.getExistingDirectory(
             self, 'Open Directory', os.getenv('MUSIC_PATH'))
         if path != '':
-            print("Folder path: " + path)
+            # print("Folder path: " + path)
             self.add_to_plalist(path)
 
     def Open_playlist(self):
-        print("Open playlist")
+        # print("Open playlist")
         dialog = QtWidgets.QFileDialog()
         path, _ = dialog.getOpenFileName(
             self, 'Open Playlist', '', 'PLAYLIST Files (*.m3u *.m3u8)')
@@ -141,7 +141,7 @@ class Ui(QtWidgets.QMainWindow):
         if os.path.splitext(path)[1] not in [".mp3", ".ogg", ".wav", ".m4a", ".aac"]:
             return
 
-        print("File path: " + path)
+        # print("File path: " + path)
         try:
             # gets song from path and gets metadata
             metadata = self.metadata(path)
@@ -183,18 +183,18 @@ class Ui(QtWidgets.QMainWindow):
 
     def shuffle_handler(self):
         if self.ShuffleButton.isChecked() == True:
-            print('Shuffle ON')
+            # print('Shuffle ON')
             self.shuffle_tracks = list(self.playlist.keys())
         else:
             # remove all items from shuffle_tracks
-            print('Shuffle OFF')
+            # print('Shuffle OFF')
             self.shuffle_tracks.clear()
 
     def saveHandler(self, path):
         if path != '':
             file, ext = os.path.splitext(path)
             path = file + (ext or ".m3u")
-            print("path : " + path)
+            # print("path : " + path)
             with open(path, 'w') as f:
                 for trackItem in self.getAllTrackItems():
                     track = self.playlist[trackItem.uniq_id]
@@ -203,7 +203,7 @@ class Ui(QtWidgets.QMainWindow):
             self.playlist_path = path
 
     def Save(self):
-        print("save")
+        # print("save")
         # impliments save as and also saves the changes to the files
         if self.playlist_path:
             self.saveHandler(self.playlist_path)
@@ -211,7 +211,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Save_As()
 
     def Save_As(self):
-        print("save as")
+        # print("save as")
         # saves the files in list view so i can import list whenever i want
         dialog = QtWidgets.QFileDialog()
         path, _ = dialog.getSaveFileName(
@@ -219,7 +219,7 @@ class Ui(QtWidgets.QMainWindow):
         self.saveHandler(path)
 
     def Exit(self):
-        print("Exit")
+        # print("Exit")
         self.close()
 
     def playPauseHandler(self):
@@ -227,22 +227,22 @@ class Ui(QtWidgets.QMainWindow):
         if self.current_uniq_id != None:
             if self.mediaPlayer.state() == QtMultimedia.QMediaPlayer.PlayingState:
                 self.mediaPlayer.pause()
-                self.playPauseButton.setText("Play")
+                self.playPauseButton.setIcon(QtGui.QIcon("icon/play.png"))
                 self.playingStatus.setText("Paused")
                 # playPauseButton.setText("Pause")
-                icon = QtGui.QIcon.fromTheme("media-playback-pause")
+                icon = QtGui.QIcon("icon/pause.png")
                 self.playlist[self.current_uniq_id]["statuslabel"].setPixmap(
                     icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
-                print("pause")
+                # print("pause")
             else:
                 self.mediaPlayer.play()
-                self.playPauseButton.setText("Pause")
+                self.playPauseButton.setIcon(QtGui.QIcon("icon/Pause.png"))
                 self.playingStatus.setText("Now Playing")
                 # playPauseButton.setText("Play")
-                icon = QtGui.QIcon.fromTheme("media-playback-start")
+                icon = QtGui.QIcon("icon/play.png")
                 self.playlist[self.current_uniq_id]["statuslabel"].setPixmap(
                     icon.pixmap(icon.actualSize(QtCore.QSize(16, 16))))
-                print("play")
+                # print("play")
 
     def history_handler(self, track_id):
         history_length = len(self.history)
@@ -253,7 +253,7 @@ class Ui(QtWidgets.QMainWindow):
         
     def media_status_handler(self, status):
         if status == QtMultimedia.QMediaPlayer.EndOfMedia:
-            print("song has finished playing")
+            # print("song has finished playing")
             self.next(self.repeatButton.isChecked())
 
     def indicate_now_playing(self, track, brush=None):
@@ -322,7 +322,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.playPauseButton.click()
 
     def tree_item_double_click(self, item):
-        print("tree item clicked")
+        # print("tree item clicked")
         if self.current_uniq_id != None:
             self.indicate_now_playing(self.playlist[self.current_uniq_id])
         
@@ -340,7 +340,7 @@ class Ui(QtWidgets.QMainWindow):
         self.history_handler(self.current_uniq_id)
 
     def generateMenu(self, pos):
-        print(pos)
+        # print(pos)
         # Get index
         for i in self.treeWidget.selectionModel().selection().indexes():
             # If the selected row index is less than 1, the context menu will pop up
@@ -353,7 +353,7 @@ class Ui(QtWidgets.QMainWindow):
         # Click on a menu item to return, making it blocked
         action = menu.exec(screenPos)
         if action == item1:
-            print('Deleted')
+            # print('Deleted')
             self.del_item()
         else:
             return
@@ -380,7 +380,7 @@ class Ui(QtWidgets.QMainWindow):
             self.artlabel.setPixmap(px.scaled(self.artlabel.size(
                 ), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
         except:
-            print("Error handling album art")
+            # print("Error handling album art")
             self.artlabel.clear()
 
     def album_content_handler(self):
@@ -473,7 +473,7 @@ class Ui(QtWidgets.QMainWindow):
         return metadata
 
     def search(self, query):
-        print("search", query)
+        # print("search", query)
 
         query = query.lower().split(" ")
         query = [*filter(bool, query)]
@@ -484,7 +484,7 @@ class Ui(QtWidgets.QMainWindow):
             base = " ".join(base).lower()
             base = base.split(" ")
             base = [*filter(bool, base)]
-            print(query, base, all(word in base for word in query))
+            # print(query, base, all(word in base for word in query))
             if all(any(word in entry for entry in base) for word in query):
                 track["item"].setHidden(False)
             else:

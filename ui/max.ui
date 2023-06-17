@@ -119,21 +119,33 @@
       <item>
        <widget class="QPushButton" name="previousButton">
         <property name="text">
-         <string>Previous</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../icon/back.png</normaloff>../icon/back.png</iconset>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="playPauseButton">
         <property name="text">
-         <string>Play</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../icon/play.png</normaloff>../icon/play.png</iconset>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="nextButton">
         <property name="text">
-         <string>Next</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../icon/next.png</normaloff>../icon/next.png</iconset>
         </property>
        </widget>
       </item>
